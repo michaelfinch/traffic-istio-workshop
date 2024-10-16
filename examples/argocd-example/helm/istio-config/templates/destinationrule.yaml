@@ -1,0 +1,10 @@
+{{- if .Values.istio.destinationRule.enabled }}
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: {{ .Values.istio.destinationRule.name }}
+spec:
+  host: {{ .Values.istio.destinationRule.host }}
+  subsets:
+  {{- toYaml .Values.istio.destinationRule.subsets | nindent 4 }}
+{{- end }}

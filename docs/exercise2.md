@@ -47,7 +47,7 @@ In this exercise we will install helm, start a local kubernetes cluster, use hel
        You should see an istiod pod.
      - Enable automatic istio-proxy sidecar injection when new pods are brought up.
        ```bash
-       kubectl --context kind-exercise1 label namespace default istio-injection=enabled
+       kubectl --context kind-exercise2 label namespace default istio-injection=enabled
        ```
 1. Create two services, service-a and service-b, using deployment.yaml files in this repo. In order to mimic a blue-green deployment we will actually create two deployments for service-b: service-b-v1 and service-b-v2.
 ```
@@ -60,5 +60,98 @@ kubectl --context kind-exercise2 apply -f ~/Development/traffic-istio-workshop/e
       ```bash
       kubectl --context kind-exercise2 get pods -o wide
       ```
-1. Familiarize yourself with the helm chart we'll use in this example.
-     - 
+1. Familiarize yourself with the helm chart we'll use in this example: [https://github.com/michaelfinch/traffic-istio-workshop/tree/main/exercises/helm-exercise/helm/istio-config](https://github.com/michaelfinch/traffic-istio-workshop/tree/main/exercises/helm-exercise/helm/istio-config).
+> **_TEST YOUR KNOWLEDGE:_** What do you think will happen when we apply this helm chart?
+> <br /><br />Istio `VirtualServices` are documented [here](https://istio.io/latest/docs/reference/config/networking/virtual-service/).
+> <br />Istio `DestinationRules` are documented [here](https://istio.io/latest/docs/reference/config/networking/destination-rule/).
+1. See how the helm chart will be rendered. The `helm template` command takes the values.yaml file and applies it to the files in the templates/ directory.
+   ```bash
+   helm --kube-context kind-exercise2 template istio-config ~/Development/traffic-istio-workshop/exercises/helm-exercise/helm/istio-config
+   ```
+1. Install the helm chart we'll use in this example.
+   ```bash
+   helm --kube-context kind-exercise2 install istio-config ~/Development/traffic-istio-workshop/exercises/helm-exercise/helm/istio-config
+   ```
+     - Verify that the chart was installed.
+       ```bash
+       helm --kube-context kind-exercise2 list
+       ```
+1. Verify that the `VirtualService` and `DestinationRule` were applied in istio.
+     - Show the `VirtualService`.
+       ```bash
+       kubectl --context kind-exercise2 get virtualservice service-b -o yaml
+       ```
+     - Show the `DestinationRule`.
+       ```bash
+       kubectl --context kind-exercise2 get destinationrule service-b -o yaml
+       ```
+1. Check the envoy config and verify the 99%/1% traffic split for the two service-b deployments.
+   ```bash
+   istioctl --context kind-exercise2 proxy-config routes $(kubectl --context kind-exercise2 get pod -l app=service-a -o jsonpath='{.items[0].metadata.name}') -o json | jq '.. | objects | select(has("weightedClusters")) | .weightedClusters'
+   ```
+   The output should be:
+   ```json
+   {
+     "clusters": [
+       {
+         "name": "outbound|80|v1|service-b.default.svc.cluster.local",
+         "weight": 99
+       },
+       {
+         "name": "outbound|80|v2|service-b.default.svc.cluster.local",
+         "weight": 1
+       }
+     ]
+   }
+   ```
+1. Send a bunch of curls from service-a to service-b and confirm that ~99% of them go to service-b-v1.
+   ```bash
+   for i in {1..20}; do
+     kubectl --context kind-exercise2 exec -it $(kubectl --context kind-exercise2 get pod -l app=service-a -o jsonpath='{.items[0].metadata.name}') -- curl service-b.default.svc.cluster.local:80
+     echo
+   done
+   ```
+1. Manually update the weights in the [values.yaml](https://github.com/michaelfinch/traffic-istio-workshop/blob/main/exercises/helm-exercise/helm/istio-config/values.yaml) file on your laptop to give both versions of service-b 50% weight.
+1. Apply the updated helm chart.
+   ```bash
+   helm --kube-context kind-exercise2 upgrade istio-config ~/Development/traffic-istio-workshop/exercises/helm-exercise/helm/istio-config -f ~/Development/traffic-istio-workshop/exercises/helm-exercise/helm/istio-config/values.yaml
+   ```
+1. Verify the change took effect.
+     - Show the `VirtualService`.
+       ```bash
+       kubectl --context kind-exercise2 get virtualservice service-b -o yaml
+       ```
+     - Check the envoy config and verify the 50/50 traffic split for the two service-b deployments.
+       ```bash
+       istioctl --context kind-exercise2 proxy-config routes $(kubectl --context kind-exercise2 get pod -l app=service-a -o jsonpath='{.items[0].metadata.name}') -o json | jq '.. | objects | select(has("weightedClusters")) | .weightedClusters'
+       ```
+       The output should be:
+       ```json
+       {
+         "clusters": [
+           {
+             "name": "outbound|80|v1|service-b.default.svc.cluster.local",
+             "weight": 50
+           },
+           {
+             "name": "outbound|80|v2|service-b.default.svc.cluster.local",
+             "weight": 50
+           }
+         ]
+       }
+       ```
+1. Send a bunch of curls from service-a to service-b and confirm that they are evenly split across service-b-v1 and service-b-v2.
+   ```bash
+   for i in {1..20}; do
+     kubectl --context kind-exercise2 exec -it $(kubectl --context kind-exercise2 get pod -l app=service-a -o jsonpath='{.items[0].metadata.name}') -- curl service-b.default.svc.cluster.local:80
+     echo
+   done
+   ```
+
+<br />
+<br />
+> **_TEST YOUR KNOWLEDGE:_** Using the [VirtualService](https://istio.io/latest/docs/reference/config/networking/virtual-service/) docs, 
+
+<br />
+<br />
+> **_TEST YOUR KNOWLEDGE:_** Using the [VirtualService](https://istio.io/latest/docs/reference/config/networking/virtual-service/) docs, 

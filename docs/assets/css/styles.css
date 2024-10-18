@@ -1,0 +1,20 @@
+blockquote {
+    border-left: 4px solid #007bff; /* Blue border */
+    padding: 10px;
+    color: #333; /* Text color */
+    background-color: #f0f7fb; /* Background color */
+    border: solid 1px #3498db;
+}
+
+/*
+blockquote {
+     -moz-border-radius: 6px;
+     -webkit-border-radius: 6px;
+     background-color: #f0f7fb;
+     border: solid 1px #3498db;
+     border-radius: 6px;
+     line-height: 18px;
+     overflow: hidden;
+     padding: 12px;
+}
+*/

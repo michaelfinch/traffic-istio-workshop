@@ -120,3 +120,5 @@ Hello from Service B
 > <summary>Solution</summary>
 > <p><code class="language-plaintext highlighter-rouge">kubectl --context kind-exercise1 exec -it $(kubectl  --context kind-exercise1 get pod -l app=service-a -o jsonpath='{.items[0].metadata.name}') -- curl -sS istiod.istio-system:15014/version</code></p>
 > </details>
+
+<br />

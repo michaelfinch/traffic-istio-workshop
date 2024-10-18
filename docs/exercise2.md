@@ -149,9 +149,131 @@ kubectl --context kind-exercise2 apply -f ~/Development/traffic-istio-workshop/e
    ```
 
 <br />
-<br />
-> **_TEST YOUR KNOWLEDGE:_** Using the [VirtualService](https://istio.io/latest/docs/reference/config/networking/virtual-service/) docs, 
+> **_TEST YOUR KNOWLEDGE:_** Modify the [exercise2 helm chart](https://github.com/michaelfinch/traffic-istio-workshop/tree/main/exercises/helm-exercise/helm/istio-config) on your laptop to do the following:
+> 1. Make 100% of traffic route to service-b-v1.
+> 2. Using the [VirtualService](https://istio.io/latest/docs/reference/config/networking/virtual-service/) docs, enable request mirroring so that all requests to service-b-v1 are mirrored to service-b-v2.
+> 3. Apply the helm changes.
+> 4. Tail the logs of the service-b-v2 pod.
+> 5. Send some requests from service-a to service-b. The requests should all hit service-b-v1, but you should also see logs on the service-b-v2 pod from the mirrored requests.
+> <details>
+> <summary>Solution</summary>
+> <p>One way to implement this is with the following <code class="language-plaintext highlighter-rouge">values.yaml</code>:
+> <pre>
+> istio:
+>   virtualService:
+>     enabled: true
+>     name: service-b
+>     hosts:
+>       - service-b
+>     http:
+>       - route:
+>           - destination:
+>               host: service-b
+>               subset: v1
+>             weight: 100          # <-- 100% weight
+>           - destination:
+>               host: service-b
+>               subset: v2
+>             weight: 0            # <-- 0% weight
+>         mirror:                  # <-- added this stanza
+>           host: service-b
+>           subset: v2
+>   destinationRule:
+>     enabled: true
+>     name: service-b
+>     host: service-b
+>     subsets:
+>       - name: v1
+>         labels:
+>           version: v1
+>       - name: v2
+>         labels:
+>           version: v2
+> </pre>
+> </p>
+> </details>
 
 <br />
 <br />
-> **_TEST YOUR KNOWLEDGE:_** Using the [VirtualService](https://istio.io/latest/docs/reference/config/networking/virtual-service/) docs, 
+> **_TEST YOUR KNOWLEDGE:_** Update the [exercise2 helm chart](https://github.com/michaelfinch/traffic-istio-workshop/tree/main/exercises/helm-exercise/helm/istio-config) on your laptop to do the following:
+> 1. Using the [Authorization Policy](https://istio.io/latest/docs/reference/config/security/authorization-policy/) docs, add an access control that blocks requests from service-a to service-b.
+> 2. Apply the helm changes.
+> 3. Send some requests from service-a to service-b. You should get `RBAC: access denied` errors.
+> 3. Modify the access control to _allow_ requests from service-a to service-b, apply it, and send some test requests.
+> <details>
+> <summary>Hint</summary>
+> <p>Start by creating the file <code class="language-plaintext highlighter-rouge">templates/authorizationpolicy.yaml</code>. To make things simple at first you can create it without any templating logic or variable interpolation. Then once it looks good you can introduce variables and templating expressions to make the chart more dynamic.</p>
+> </details>
+> <details>
+> <summary>Solution</summary>
+> <p>One way to implement this is with the following <code class="language-plaintext highlighter-rouge">values.yaml</code>:
+> <pre>
+> istio:
+>   virtualService:
+>     enabled: true
+>     name: service-b
+>     hosts:
+>       - service-b
+>     http:
+>       - route:
+>           - destination:
+>               host: service-b
+>               subset: v1
+>             weight: 100
+>           - destination:
+>               host: service-b
+>               subset: v2
+>             weight: 0
+>   destinationRule:
+>     enabled: true
+>     name: service-b
+>     host: service-b
+>     subsets:
+>       - name: v1
+>         labels:
+>           version: v1
+>       - name: v2
+>         labels:
+>           version: v2
+>   policy:                        # <-- added this stanza
+>     enabled: true
+>     action: ALLOW # Use DENY to block access
+>     source:
+>       namespaces:
+>         - default
+>       principals:
+>         - cluster.local/ns/default/sa/default
+>     destination:
+>       hosts:
+>         - service-b
+> </pre>
+> <br />
+> and the following <code class="language-plaintext highlighter-rouge">templates/authorizationpolicy.yaml</code>:
+> <br />
+> <br />
+> <pre>
+> &#123;&#123;- if .Values.istio.policy.enabled &#125;&#125;
+> apiVersion: security.istio.io/v1beta1
+> kind: AuthorizationPolicy
+> metadata:
+>   name: allow-from-service-a
+>   namespace: default
+> spec:
+>   action: &#123;&#123; .Values.istio.policy.action &#125;&#125;
+>   rules:
+>   - from:
+>     - source:
+>         namespaces:
+>         &#123;&#123;- toYaml .Values.istio.policy.source.namespaces | nindent 12 &#125;&#125;
+>         principals:
+>         &#123;&#123;- toYaml .Values.istio.policy.source.principals | nindent 12 &#125;&#125;
+>     to:
+>     - operation:
+>         hosts:
+>         &#123;&#123;- toYaml .Values.istio.policy.destination.hosts | nindent 12 &#125;&#125;
+> &#123;&#123;- end &#125;&#125;
+> </pre>
+> </p>
+> </details>
+
+<br />

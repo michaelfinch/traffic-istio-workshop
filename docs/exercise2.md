@@ -4,7 +4,7 @@ title: "Exercise 2: Using Helm"
 previous_page: exercise1
 next_page: exercise3
 ---
-<link rel="stylesheet" href="/assets/css/styles.css">
+<link rel="stylesheet" href="assets/css/styles.css">
 
 # Exercise 2: Using Helm
 

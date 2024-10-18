@@ -4,7 +4,7 @@ title: "Exercise 3: Using ArgoCd"
 previous_page: exercise2
 next_page: exercise4
 ---
-<link rel="stylesheet" href="/assets/css/styles.css">
+<link rel="stylesheet" href="assets/css/styles.css">
 
 # Exercise 3: Using ArgoCd
 

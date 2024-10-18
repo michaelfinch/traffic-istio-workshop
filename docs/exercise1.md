@@ -4,7 +4,7 @@ title: "Exercise 1: Using Istio"
 previous_page: overview
 next_page: exercise2
 ---
-<link rel="stylesheet" href="/assets/css/styles.css">
+<link rel="stylesheet" href="assets/css/styles.css">
 
 # Exercise 1: Using Istio
 

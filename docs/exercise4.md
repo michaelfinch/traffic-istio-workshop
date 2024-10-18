@@ -4,6 +4,7 @@ title: "Exercise 4: Multicluster Communication"
 previous_page: exercise3
 next_page: cleanup
 ---
+<link rel="stylesheet" href="assets/css/styles.css">
 
 # Exercise 4: Multicluster Communication
 

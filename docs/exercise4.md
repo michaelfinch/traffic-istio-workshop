@@ -11,8 +11,8 @@ next_page: cleanup
 <img src="assets/images/multicluster.png" alt="multicluster" width="300"/>
 <br />
 
-In this exercise we will...
+This is an open-ended exercise that you can attempt if you have time. The goal is to run two kubernetes clusters locally, install istio into them with ingress and egress gateways, and test sending traffic from a service in one cluster to a service in another cluster.
 
-## Procedure
+> **_HINT:_**  [go/chatui](https://square-console.sqprod.co/chat) is your friend.
 
-1. todo
+<br />

@@ -93,7 +93,10 @@ In this exercise we will start a local kubernetes cluster, use helm to install i
        ```
 
 <br />
-
 > **_EXPLORE:_** Take some time to explore the argocd UI.
+
+<br />
+<br />
+> **_TEST YOUR KNOWLEDGE:_** Create your own branch in [https://github.com/michaelfinch/traffic-istio-workshop/tree/main](https://github.com/michaelfinch/traffic-istio-workshop/tree/main). Update the `workshop-istio` app in the argocd UI to use your branch instead of the `main` branch. Test making changes to the helm chart for this exercise, pushing to your branch, and applying the changes with argocd. You can test rollbacks, automatic syncing, etc.
 
 <br />

@@ -13,6 +13,9 @@ next_page: exercise2
 
 In this exercise we will start a local kubernetes cluster, install istio, deploy two kubernetes services, and test sending traffic between the services via istio.
 
+## What is Istio?
+[Istio](https://istio.io/) is an open-source service mesh that provides a way to manage microservices, including the ability to connect, secure, control, and observe services. It is designed to work with Kubernetes, although it can also be used with other environments.
+
 ## Procedure
 
 1. Checkout the [traffic-istio-workshop](https://github.com/michaelfinch/traffic-istio-workshop/tree/main) repo in the ~/Development directory on your laptop. This repo contains files we will use in this exercise.

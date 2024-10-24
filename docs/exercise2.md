@@ -13,6 +13,9 @@ next_page: exercise3
 
 In this exercise we will install helm, start a local kubernetes cluster, use helm to install istio, use helm to apply istio configuration, and test sending different %s of traffic to two versions of a service via istio.
 
+## What is Helm?
+[Helm](https://helm.sh/) is an open-source package manager for Kubernetes, designed to simplify the deployment and management of applications on Kubernetes clusters. It is often referred to as the "Kubernetes package manager" because it helps manage Kubernetes applications using a packaging format called "charts." A Helm chart is a collection of files that describe a related set of Kubernetes resources. Charts can be used to define, install, and manage even the most complex Kubernetes applications. Helm charts use templates to allow for dynamic configuration of Kubernetes resources. This means you can customize and configure your applications easily by providing values that are substituted into the templates at deployment time.
+
 ## Procedure
 
 1. Install helm.
